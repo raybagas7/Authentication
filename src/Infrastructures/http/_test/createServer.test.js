@@ -1,3 +1,5 @@
+/* eslint object-curly-newline: ["error", { "multiline": true }] */
+
 const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const container = require('../../container');
@@ -10,6 +12,20 @@ describe('HTTP server', () => {
 
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
+  });
+
+  it('should response 404 when request unregistered route', async () => {
+    // Arrange
+    const server = await createServer({});
+
+    // Action
+    const response = await server.inject({
+      method: 'GET',
+      url: '/noroute',
+    });
+
+    // Assert
+    expect(response.statusCode).toEqual(404);
   });
 
   describe('when POST /users', () => {
@@ -39,10 +55,7 @@ describe('HTTP server', () => {
 
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
-      const requestPayload = {
-        fullname: 'Ray Agas',
-        password: 'secret',
-      };
+      const requestPayload = { fullname: 'Ray Agas', password: 'secret' };
       const server = await createServer(container);
 
       // Action
@@ -138,9 +151,7 @@ describe('HTTP server', () => {
 
     it('should response 400 when username unavaliable', async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({
-        username: 'agas',
-      });
+      await UsersTableTestHelper.addUser({ username: 'agas' });
       const requestPayload = {
         username: 'agas',
         password: 'secret',
@@ -160,5 +171,30 @@ describe('HTTP server', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('username tidak tersedia');
     });
+  });
+
+  it('should handle server error correctly', async () => {
+    // Arrange
+    const requestPayload = {
+      username: 'agas',
+      fullname: 'Ray Agas',
+      password: 'secretly',
+    };
+    const server = await createServer({});
+
+    // Action
+    const response = await server.inject({
+      method: 'POST',
+      url: '/users',
+      payload: requestPayload,
+    });
+
+    // Assert
+    const responseJson = JSON.parse(response.payload);
+    expect(response.statusCode).toEqual(500);
+    expect(responseJson.status).toEqual('error');
+    expect(responseJson.message).toEqual(
+      'maaf terjadi kegagalan pada server kami'
+    );
   });
 });
