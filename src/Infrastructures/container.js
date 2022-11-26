@@ -7,7 +7,7 @@ const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
 const pool = require('./database/postgres/pool');
 
-// service (respo, helper, etc)
+// service (repo, helper, etc)
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 

@@ -34,7 +34,7 @@ describe('UserRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(
-        userRepositoryPostgres.verifyAvailableUsername('dicoding')
+        userRepositoryPostgres.verifyAvailableUsername('agas')
       ).resolves.not.toThrowError(InvariantError);
     });
   });
